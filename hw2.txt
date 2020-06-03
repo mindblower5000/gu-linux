@@ -1,0 +1,91 @@
+===== 1 ==========
+Навигация по файловой системе. Попрактиковаться в перемещении между каталогами, используя полный и относительный путь. Перечислить, какие параметры команды cd позволят быстро вернуться в домашний каталог, позволят перейти на уровень выше.
+
+kali@kali:~$ pwd
+/home/kali
+kali@kali:~$ cd /
+kali@kali:/$ ls
+kali@kali:/$ cd proc
+kali@kali:/proc$ cat cpuinfo
+kali@kali:/proc$
+kali@kali:/proc$ cd ~
+kali@kali:~$
+kali@kali:~$ cd /usr/sbin/
+kali@kali:/usr/sbin$
+
+cd ~
+cd ..
+
+
+
+
+===== 2 ==========
+Управление файлами и каталогами и текстовые редакторы. Создать файл с наполнением, используя несколько способов. Использовать разобранные текстовые редакторы для наполнения файлов данными. Создать копии созданных файлов, создать несколько каталогов с подкаталогами, перенести несколько файлов в созданные каталоги. Перечислить команды и используемые параметры команд.
+
+kali@kali:~$ echo "test" > file
+kali@kali:~$ cat > file2
+123
+456
+789
+^D
+
+kali@kali:~$ cp file file3
+kali@kali:~$ cp file2 file4
+
+kali@kali:~$ mkdir -p p1/p2/p3/p4/p5
+
+ali@kali:~$ ls
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  file  file2  file3  file4  p1 
+
+kali@kali:~$ mv file p1/
+kali@kali:~$ mv file2 p1/p2
+kali@kali:~$ mv file3 p1/p2/p3
+kali@kali:~$ mv file4 p1/p2/p3/p4
+
+Usage: cp [OPTION]... [-T] SOURCE DEST
+  or:  cp [OPTION]... SOURCE... DIRECTORY
+  or:  cp [OPTION]... -t DIRECTORY SOURCE...
+Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
+
+Usage: mv [OPTION]... [-T] SOURCE DEST
+  or:  mv [OPTION]... SOURCE... DIRECTORY
+  or:  mv [OPTION]... -t DIRECTORY SOURCE...
+Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.
+
+
+
+===== 3 ==========
+* Используя дополнительный материал, настроить 	
+
+в MacOS генерим ключи
+ssh-keygen -t rsa
+
+и публичный ключ  /home/user/.ssh/id_rsa.pub  копируем в буфер и вставляем в файл  authorized_keys на хост в папку .ssh 
+mkdir .ssh
+kali@kali:~$ cd .ssh
+kali@kali:~/.ssh$ ls
+kali@kali:~/.ssh$ cat>authorized_keys
+ssh-rsa  ...........
+^D
+sudo reboot
+
+логинимся из макоси, все работет!!!
+
+(base) 192:~ root1$ ssh kali@192.168.1.111
+Enter passphrase for key '/Users/root1/.ssh/id_rsa':
+Linux kali 5.6.0-kali1-amd64 #1 SMP Debian 5.6.7-1kali1 (2020-05-12) x86_64
+
+The programs included with the Kali GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Kali GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Mon Jun  1 15:15:54 2020 from 192.168.1.14
+kali@kali:~$
+
+
+	
+
+
+
