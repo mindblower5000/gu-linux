@@ -1,0 +1,131 @@
+1 Управление пользователями:
+* создать пользователя, используя утилиту useradd;
+		
+		kali@kali:~$ sudo groupadd pentester
+		kali@kali:~$ sudo useradd -m -G pentester -s /bin/bash android
+		
+		kali@kali:~$ grep android /etc/passwd
+		android:x:1003:1004::/home/android:/bin/bashkali@kali:~$ sudo cat /etc/shadow | grep android
+		
+		ali@kali:~$ sudo grep android /etc/shadow
+		android:!:18416:0:99999:7:::
+		
+		kali@kali:~$ sudo passwd android
+		New password:
+		Retype new password:
+		passwd: password updated successfully
+		
+		kali@kali:~$ sudo grep android /etc/shadow
+		android:$6$emvgMdFRgQsdB1WX$sWUVAyQLCZM6XnAl.......8wwnSLKReo8Gp.ag9mAmaE5w9OoTBhBHmrDTqdGAW0:18416:0:99999:7:::
+		
+		kali@kali:~$ sudo su android
+		android@kali:/home/kali$ id
+		uid=1003(android) gid=1004(android) groups=1004(android),1003(pentester)
+		android@kali:/home/kali$ cd ~
+		android@kali:~$ ls
+		android@kali:~$ pwd
+		/home/android
+		
+		
+		kali@kali:~$ sudo usermod -a -G sudo android
+		
+		kkali@kali:~$ cat /etc/group | grep android
+		sudo:x:27:kali,android
+		pentester:x:1003:android
+		android:x:1004:
+
+
+* создать пользователя, используя утилиту adduser;
+		
+		kali@kali:~$ sudo adduser ai
+		perl: warning: Setting locale failed.
+		perl: warning: Please check that your locale settings:
+			LANGUAGE = (unset),
+			LC_ALL = (unset),
+			LC_CTYPE = "UTF-8",
+			LANG = "en_US.UTF-8"
+		    are supported and installed on your system.
+		perl: warning: Falling back to a fallback locale ("en_US.UTF-8").
+		Adding user `ai' ...
+		Adding new group `ai' (1002) ...
+		Adding new user `ai' (1002) with group `ai' ...
+		Creating home directory `/home/ai' ...
+		Copying files from `/etc/skel' ...
+		New password:
+		Retype new password:
+		passwd: password updated successfully
+		Changing the user information for ai
+		Enter the new value, or press ENTER for the default
+			Full Name []: Michael Potapich
+			Room Number []: 31337
+			Work Phone []: 1123581321
+			Home Phone []:
+			Other []:
+		Is the information correct? [Y/n] Y
+
+
+* создать пользователя в ручном режиме.
+		1.добавил ручками в /etc/passwd строку
+		manual:x:1005:1005::/home/manual:/bin/bash
+		2.добавил ручками  в /etc/group
+		manual:x:1001:
+		3. запустил mc под sudo, создал домашнюю папку manual в /home и сменил ей права на manual
+		4.создал пароль sudo passwd manual
+		залогинился ок
+
+
+2 Управление группами:
+* создать группу с использованием утилит и в ручном режиме;
+		выше создавал группу 
+		sudo groupadd pentester
+		выше ручками добавил одноименную группу для юзера manual в /etc/group строку
+		manual:x:1001:
+
+* попрактиковаться в смене групп у пользователей;
+		kali@kali:~$ sudo usermod -g pentester android
+
+* добавить пользователя в группу, не меняя основной;
+		kali@kali:~$ sudo usermod -a -G sudo  android
+		kali@kali:~$ sudo usermod -a -G sudo  ai
+		kali@kali:~$ sudo usermod -a -G sudo  manual
+		
+		kali@kali:~$ cat /etc/group | grep sudo
+		sudo:x:27:kali,android,ai,manual
+
+		kali@kali:~$ cat /etc/passwd
+		...
+		ai:x:1002:1002:Michael Potapich,31337,1123581321,:/home/ai:/bin/bash
+		android:x:1003:1003::/home/android:/bin/bash
+		manual:x:1005:1005::/home/manual:/bin/bash
+
+* удалить пользователя из группы.
+		kali@kali:~$ sudo gpasswd -d android sudo
+		Removing user android from group sudo
+
+		sudo usermod -G "" android удалить  из всех доп групп
+
+3 Создать пользователя с правами суперпользователя. 
+		kali@kali:~$ sudo useradd -ou 0 -g 0 roottest
+		kali@kali:~$ passwd roottest
+		
+		либо у текущего прописать uid и gid 0
+
+Сделать так, чтобы sudo не требовал пароль для выполнения команд.
+
+		kali@kali:~$ sudo visudo
+		
+		# Allow members of group sudo to execute any command
+		%sudo   ALL=(ALL:ALL) NOPASSWD: ALL
+
+		visudo: /etc/sudoers.tmp unchanged
+		
+
+4* Используя дополнительные материалы, выдать одному из созданных пользователей право на выполнение ряда команд, требующих прав суперпользователя (команды выбираем на своё усмотрение).
+
+		kali@kali:~$ sudo visudo
+		# User privilege specification
+		root    ALL=(ALL:ALL) ALL
+		ai ALL=(ALL) PASSWD: ALL, NOPASSWD: /usr/bin/apt, /sbin/reboot
+
+
+
