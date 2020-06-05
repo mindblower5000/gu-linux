@@ -1,0 +1,103 @@
+1. Потоки ввода/вывода. 
+			Создать файл, используя команду echo. 
+						ai@ubuntu20:~$ echo "test"> test
+						ai@ubuntu20:~$ ls
+							Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  examples.desktop  test
+						ai@ubuntu20:~$ cat test
+							test
+				
+			Используя команду cat, прочитать содержимое каталога etc, ошибки перенаправить в отдельный файл.
+
+						ai@ubuntu20:~$ ls /etc/ | cat 2> ~/err
+						
+							NetworkManager
+							PackageKit
+							UPower
+							X11
+							acpi
+							adduser.conf
+							alsa
+							alternatives
+							anacrontab
+							apg.conf
+							apm
+							apparmor
+							apparmor.d
+							....
+				
+			
+===============================================
+2. Конвейер (pipeline). 
+
+			Использовать команду cut на вывод длинного списка каталога, чтобы отобразить только права доступа к файлам. 
+			
+				ai@ubuntu20:~$ ls -l /etc | cut -d ' ' -f 1
+				
+			
+			Затем отправить в конвейере этот вывод на sort и uniq, чтобы отфильтровать все повторяющиеся строки.
+			
+				ai@ubuntu20:~$ ls -l /etc | cut -d ' ' -f 1 | sort | uniq
+					-r--r-----
+					-r--r--r--
+					-rw-r-----
+					-rw-r--r--
+					-rw-rw-r--
+					drwxr-s---
+					drwxr-xr-x
+					lrwxrwxrwx
+					total
+
+===============================================
+3. Управление процессами. 
+
+		Изменить конфигурационный файл службы SSH: /etc/ssh/sshd_config, отключив аутентификацию по паролю PasswordAuthentication no. 
+		
+		ai@ubuntu20:~$ sudo nano /etc/ssh/sshd_config
+		
+		
+		Выполните рестарт службы systemctl restart sshd (service sshd restart)		
+					ai@ubuntu20:~$ systemctl restart sshd
+							==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+							Authentication is required to restart 'ssh.service'.
+							Authenticating as: root as ai,,, (ai)
+							Password:
+							==== AUTHENTICATION COMPLETE ===
+					
+		, верните аутентификацию по паролю, выполните reload службы systemctl reload sshd (services sshd reload). 
+					ai@ubuntu20:~$ sudo nano /etc/ssh/sshd_config
+					ai@ubuntu20:~$ systemctl reload sshd
+		
+					(base) 192:~ root1$ ssh ai@192.168.1.124
+					ai@192.168.1.124: Permission denied (publickey).
+					
+					
+					(base) 192:~ root1$ ssh ai@192.168.1.124
+							Welcome to Ubuntu 20.04 LTS (GNU/Linux 5.4.0-31-generic x86_64)
+		
+		В чём различие между действиями restart и reload?
+		
+		Релоад перечитывает конфу не выгружая сервис, а рестарт перегружает его заново. Поддерживается не всеми сервисами.
+		
+		
+		 Создайте файл при помощи команды cat > file_name, напишите текст и завершите комбинацией ctrl+d. Какой сигнал передадим процессу?
+		 
+		 EOT спец символ 
+		 
+		
+
+
+===============================================
+4. Сигналы процессам. 
+
+		Запустите mc. Используя ps, найдите PID процесса, завершите процесс, передав ему сигнал 9.
+		
+				(base) 192:~ root1$ ps aux | grep mc
+					root1            39648   0.3  0.0  4287756    740 s004  S+   12:53AM   0:00.00 grep mc
+					root1            30786   0.0  0.0  4341888   3368 s000  S+   Wed11PM   0:00.11 mc
+					
+					
+				(base) 192:~ root1$ kill -s 9 30786
+				(base) 192:~ root1$ ps aux | grep mc
+					root1            39652   0.0  0.0  4277516    708 s004  S+   12:54AM   0:00.00 grep mc
+		
+		
