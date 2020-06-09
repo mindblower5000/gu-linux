@@ -1,0 +1,102 @@
+=====
+1.Создать файл file1 и наполнить его произвольным содержимым. 
+		ai@ubuntu20:~$ echo "file1 test">file1
+
+	Скопировать его в file2. 
+		ai@ubuntu20:~$ cp file1 file2
+	
+	Создать символическую ссылку file3 на file1. 	
+		ai@ubuntu20:~$ ln -s file1 file3
+	
+	Создать жёсткую ссылку file4 на file1. Посмотреть, какие inode у файлов. Удалить file1. Что стало с остальными созданными файлами? Попробовать вывести их на экран.
+		ai@ubuntu20:~$ ln file1 file4
+		
+		
+=====
+2.Дать созданным файлам другие, произвольные имена. 
+		ai@ubuntu20:~$ mv file1 file11
+		ai@ubuntu20:~$ mv file2 file22
+		ai@ubuntu20:~$ mv file3 file33
+		ai@ubuntu20:~$ mv file4 file44
+		
+		ai@ubuntu20:~$ ls
+		Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  cat  err  examples.desktop  file11  file22  file33  file44  file_name  list  test
+		(file33, сделанный как символическая ссылка умер)
+		ai@ubuntu20:~$ cat file33
+			cat: file33: No such file or directory
+		
+		
+	Создать новую символическую ссылку. 
+		ai@ubuntu20:~$ ln -s file44 file4455
+		ai@ubuntu20:~$ ln -s /home/ai/file44 file4455_abspath
+	
+	Переместить ссылки в другую директорию.	
+		ai@ubuntu20:~$ mkdir aaa
+		ai@ubuntu20:~$ mv file4455 ./aaa/
+		ai@ubuntu20:~$ mv file4455_abspath ./aaa/
+		ai@ubuntu20:~$ cd aaa/
+		ai@ubuntu20:~/aaa$ ls
+		file4455  file4455_abspath
+		
+		(file4455 is dead, file4455_abspath работает)
+
+=====
+3.Создать два произвольных файла. 
+		ai@ubuntu20:~/3$ touch file1
+		ai@ubuntu20:~/3$ touch file2
+
+	Первому присвоить права на чтение и запись для владельца и группы, только на чтение — для всех. 
+		ai@ubuntu20:~/3$ chmod u=rw,g=rw,o=r file1
+		ai@ubuntu20:~/3$ chmod 664 file1
+		
+	Второму присвоить права на чтение и запись только для владельца. 
+		ai@ubuntu20:~/3$ chmod 600 file2
+		ai@ubuntu20:~/3$ chmod u=rw,g=,o= file2
+		
+		ai@ubuntu20:~/3$ ls -l		
+			rw-rw-r-- 1 ai ai 0 Jun  8 20:13 file1
+			-rw------- 1 ai ai 0 Jun  8 20:14 file2
+		
+	Сделать это в численном и символьном виде.
+
+
+=====
+4.*Создать группу developer и нескольких пользователей, входящих в неё. 
+			ai@ubuntu20:~/3$ sudo addgroup developer
+			ai@ubuntu20:~/3$ sudo adduser ai2
+			ai@ubuntu20:~/3$ sudo usermod -aG developer ai
+			ai@ubuntu20:~/3$ sudo usermod -aG developer ai2	
+		
+		Создать директорию для совместной работы. 	
+			ai@ubuntu20:/opt$ sudo mkdir /opt/dev_shared
+			ai@ubuntu20:/opt$ sudo chmod 770 dev_shared	
+			ai@ubuntu20:/opt$ sudo chown root:developer dev_shared/
+	
+	Сделать так, чтобы созданные одними пользователями файлы могли изменять другие пользователи этой группы.
+			ai@ubuntu20:/opt$ sudo chmod g+s dev_shared/
+			ai@ubuntu20:/opt$ umask
+				0002
+
+=====
+5.*Создать в директории для совместной работы поддиректорию для обмена файлами, но чтобы удалять файлы могли только их создатели.
+	ai@ubuntu20:/opt/dev_shared$ mkdir shared_file
+	ai@ubuntu20:/opt/dev_shared$ chmod +t shared_file/
+	ai@ubuntu20:/opt/dev_shared$ ls -l
+		total 4
+		-rw-rw-r-- 1 ai developer    0 Jun  8 20:51 file
+		drwxrwsr-t 2 ai developer 4096 Jun  8 20:53 shared_file
+
+=====
+6.*Создать директорию, в которой есть несколько файлов. Сделать так, чтобы открыть файлы можно было, только зная имя файла, а через ls список файлов посмотреть было нельзя.
+		ai@ubuntu20:/opt/dev_shared$ mkdir hidden
+		ai@ubuntu20:/opt/dev_shared$ chmod u=x,g=,o= hidden/
+		ai@ubuntu20:/opt/dev_shared$ ls ./hidden
+			ls: cannot open directory './hidden': Permission denied
+		ai@ubuntu20:/opt/dev_shared$ cat ./hidden/hidden1
+			hidden info1
+		ai@ubuntu20:/opt/dev_shared$ cat ./hidden/hidden2
+			hidden info1
+
+
+
+
