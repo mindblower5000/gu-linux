@@ -1,0 +1,57 @@
+Все делал в макоси. Надеюсь все одинаково работает.
+
+1. Написать скрипт, который удаляет из текстового файла пустые строки и заменяет маленькие символы на большие. Воспользуйтесь tr или SED.
+
+			#!/bin/bash
+			
+			sed -ie 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' $1
+			sed -ie '/^$/d' $1
+			
+			
+==================
+2. Создать однострочный скрипт, который создаст директории для нескольких годов (2010–2017), в них — поддиректории для месяцев (от 01 до 12), и в каждый из них запишет несколько файлов с произвольными записями. Например, 001.txt, содержащий текст «Файл 001», 002.txt с текстом «Файл 002» и т. д.
+
+			#!/bin/bash			
+			mkdir -p {2000..2017}/{01..12}; for y in {2000..2017}; 	do for m in {01..12}; do echo "$y-$m" > ./$y/$m/$y-$m.txt; done;  done;
+				
+==================
+3. Использовать команду AWK на вывод длинного списка каталога, чтобы отобразить только права доступа к файлам.
+	Затем отправить в конвейере этот вывод на sort и uniq, чтобы отфильтровать все повторяющиеся строки.
+
+		(base) 192:gu-linux root1$ ls -al | awk '{ print $1 }' | sort | uniq
+			-rw-------@
+			-rw-r--r--
+			-rw-r--r--@
+			-rwxr--r--@
+			-rwxr-xr-x
+			drwxr-xr-x
+			drwxr-xr-x@
+			total
+==================
+4. Используя grep, проанализировать файл /var/log/syslog, отобрав события на своё усмотрение.
+		найдем проблемы Xcode в логах на Mac
+		(base) 192:~ root1$ cat /var/log/system.log | grep Xcode
+			Jun 13 19:45:54 192 com.apple.xpc.launchd[1] (com.apple.xpc.launchd.domain.pid.IDECacheDeleteAppExtension.14415): Path not allowed in target domain: type = pid, path = /Applications/Xcode.app/Contents/SharedFrameworks/DTDeviceKitBase.framework/Versions/A/XPCServices/com.apple.dt.Xcode.TCPRelayService.xpc error = 147: The specified service did not ship in the requestor's bundle, origin = /Applications/Xcode.app/Contents/PlugIns/IDECacheDeleteAppExtension.appex
+
+==================
+5. Создать разовое задание на перезагрузку операционной системы, используя at.
+
+(base) 192:gu-linux root1$ echo "reboot">at_cmd.txt
+(base) 192:gu-linux root1$ at now + 2 minutes <  at_cmd.txt
+
+==================
+6. Написать скрипт, делающий архивную копию каталога etc, и прописать задание в crontab.
+
+
+		 Создаем скрипт ~/bup_etc.sh
+				#!/bin/bash
+				mkdir ~/etc_bup 2>/dev/null
+				cp /etc/* ~/etc_bup
+
+		Добавим запсиь для запуска каждый понедельник в 9 и в 6 вечера
+			(base) 192:gu-linux root1$ sudo crontab -u root1 -e
+					0 9,18 * * Mon ~/bup_etc.sh
+		
+		
+		
+
