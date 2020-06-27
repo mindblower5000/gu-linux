@@ -1,0 +1,257 @@
+1. Подключить репозиторий с nginx любым удобным способом, установить nginx и потом удалить nginx, используя утилиту dpkg.
+
+
+			Формулировка задание вызывает негатив!
+			Происходит разрыв мозга , когда понимаешь что ручками ставить зависимотси, качая каждую и используя dpgk нафиг надо) либо я что то не понимаю,
+			Зачем подключать репозиториии и потом юзать dpkg? Что бы понять как он работает? Ну ок.
+			
+			Подключаем репы,
+			
+			По инструкции,			
+						ai@ubuntu20:~$ sudo apt install curl gnupg2 ca-certificates lsb-release
+						[sudo] password for ai:
+						Reading package lists... Done
+						Building dependency tree
+						Reading state information... Done
+						lsb-release is already the newest version (11.1.0ubuntu2).
+						lsb-release set to manually installed.
+						ca-certificates is already the newest version (20190110ubuntu1.1).
+						ca-certificates set to manually installed.
+						The following NEW packages will be installed:
+						  curl gnupg2
+						0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+						Need to get 167 kB of archives.
+						After this operation, 462 kB of additional disk space will be used.
+						Do you want to continue? [Y/n] y
+						Get:1 http://archive.ubuntu.com/ubuntu focal/main amd64 curl amd64 7.68.0-1ubuntu2 [161 kB]
+						Get:2 http://archive.ubuntu.com/ubuntu focal/universe amd64 gnupg2 all 2.2.19-3ubuntu2 [5316 B]
+						Fetched 167 kB in 1s (278 kB/s)
+						Selecting previously unselected package curl.
+						(Reading database ... 189771 files and directories currently installed.)
+						Preparing to unpack .../curl_7.68.0-1ubuntu2_amd64.deb ...
+						Unpacking curl (7.68.0-1ubuntu2) ...
+						Selecting previously unselected package gnupg2.
+						Preparing to unpack .../gnupg2_2.2.19-3ubuntu2_all.deb ...
+						Unpacking gnupg2 (2.2.19-3ubuntu2) ...
+						Setting up gnupg2 (2.2.19-3ubuntu2) ...
+						Setting up curl (7.68.0-1ubuntu2) ...
+						Processing triggers for man-db (2.9.1-1) ...
+						ai@ubuntu20:~$ echo "deb http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" \
+						>     | sudo tee /etc/apt/sources.list.d/nginx.list
+						deb http://nginx.org/packages/mainline/ubuntu focal nginx
+						
+		Ключ
+						ai@ubuntu20:~$ curl -fsSL https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+						OK
+						
+		Проверка				
+						ai@ubuntu20:~$ sudo apt-key fingerprint ABF5BD827BD9BF62
+						pub   rsa2048 2011-08-19 [SC] [expires: 2024-06-14]
+						      573B FD6B 3D8F BC64 1079  A6AB ABF5 BD82 7BD9 BF62
+						uid           [ unknown] nginx signing key <signing-key@nginx.com>
+
+		Репозиторий добавлен и обновлен, можно ставить стандартно. 
+
+
+		
+		Ставим с dpgk.
+	
+				Качаем deb,
+						
+						ai@ubuntu20:~$ wget http://nginx.org/packages/ubuntu/pool/nginx/n/nginx/nginx-dbg_1.18.0-1~xenial_amd64.deb
+						--2020-06-17 22:02:15--  http://nginx.org/packages/ubuntu/pool/nginx/n/nginx/nginx-dbg_1.18.0-1~xenial_amd64.deb
+						Resolving nginx.org (nginx.org)... 95.211.80.227, 62.210.92.35, 2001:1af8:4060:a004:21::e3
+						Connecting to nginx.org (nginx.org)|95.211.80.227|:80... connected.
+						HTTP request sent, awaiting response... 200 OK
+						Length: 7965234 (7.6M) [application/octet-stream]
+						Saving to: ‘nginx-dbg_1.18.0-1~xenial_amd64.deb’
+						
+						nginx-dbg_1.18.0-1~xenial_amd64.deb                         100%[=========================================================================================================================================>]   7.60M   825KB/s    in 13s
+						
+						2020-06-17 22:02:28 (620 KB/s) - ‘nginx-dbg_1.18.0-1~xenial_amd64.deb’ saved [7965234/7965234]
+						
+				Пробуем ставить,
+						
+						ai@ubuntu20:~$ dpkg -i nginx-dbg_1.18.0-1~xenial_amd64.deb
+						dpkg: error: requested operation requires superuser privilege
+						ai@ubuntu20:~$ sudo dpkg -i nginx-dbg_1.18.0-1~xenial_amd64.deb
+						Selecting previously unselected package nginx-dbg.
+						(Reading database ... 189784 files and directories currently installed.)
+						Preparing to unpack nginx-dbg_1.18.0-1~xenial_amd64.deb ...
+						Unpacking nginx-dbg (1.18.0-1~xenial) ...
+						dpkg: dependency problems prevent configuration of nginx-dbg:
+						 nginx-dbg depends on nginx (= 1.18.0-1~xenial); however:
+						  Package nginx is not installed.
+						
+						dpkg: error processing package nginx-dbg (--install):
+						 dependency problems - leaving unconfigured
+						Errors were encountered while processing:
+						 nginx-dbg
+
+				Утыкаемсся в зависимости
+				
+				Пробуем по нормальному,
+										
+						ai@ubuntu20:~$ sudo apt install nginx
+						Reading package lists... Done
+						Building dependency tree
+						Reading state information... Done
+						Building dependency tree
+						Reading state information... Done
+						You might want to run 'apt --fix-broken install' to correct these.
+						The following packages have unmet dependencies:
+						 nginx-dbg : Depends: nginx (= 1.18.0-1~xenial)
+						E: Unmet dependencies. Try 'apt --fix-broken install' with no packages (or specify a solution).
+						ai@ubuntu20:~$ apt --fix-broken install
+						E: Could not open lock file /var/lib/dpkg/lock-frontend - open (13: Permission denied)
+						E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), are you root?
+						
+				Побились зависимости
+				
+				Лечим		
+						
+						ai@ubuntu20:~$ sudo apt --fix-broken install
+						Reading package lists... Done
+						Building dependency tree
+						Reading state information... Done
+						Correcting dependencies... Done
+						The following additional packages will be installed:
+						  nginx nginx-dbg
+						The following NEW packages will be installed:
+						  nginx
+						The following packages will be upgraded:
+						  nginx-dbg
+						1 upgraded, 1 newly installed, 0 to remove and 48 not upgraded.
+						1 not fully installed or removed.
+						Need to get 7592 kB of archives.
+						After this operation, 1888 kB of additional disk space will be used.
+						Do you want to continue? [Y/n] y
+						Get:1 http://nginx.org/packages/mainline/ubuntu focal/nginx amd64 nginx-dbg amd64 1.19.0-1~focal [6733 kB]
+						Get:2 http://nginx.org/packages/mainline/ubuntu foc
+						Fetched 7592 kB in 2s (3695 kB/s)
+						(Reading database ... 189791 files and directories currently installed.)
+						Preparing to unpack .../nginx-dbg_1.19.0-1~focal_amd64.deb ...
+						Unpacking nginx-dbg (1.19.0-1~focal) over (1.18.0-1~xenial) ...
+						Selecting previously unselected package nginx.
+						Preparing to unpack .../nginx_1.19.0-1~focal_amd64.deb ...
+						----------------------------------------------------------------------
+						
+						Thanks for using nginx!
+						
+						Please find the official documentation for nginx here:
+						* http://nginx.org/en/docs/
+						
+						Please subscribe to nginx-announce mailing list to get
+						the most important news about nginx:
+						* http://nginx.org/en/support.html
+						
+						Commercial subscriptions for nginx are available on:
+						* http://nginx.com/products/
+						
+						----------------------------------------------------------------------
+						Unpacking nginx (1.19.0-1~focal) ...
+						Setting up nginx (1.19.0-1~focal) ...
+						Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /lib/systemd/system/nginx.service.
+						Setting up nginx-dbg (1.19.0-1~focal) ...
+						Processing triggers for man-db (2.9.1-1) ...
+						Processing triggers for systemd (245.4-4ubuntu3.1) ...
+			
+			Готово!!!!
+			
+			Удаляем по нормальному
+			
+						ai@ubuntu20:~$ sudo apt remove nginx
+						[sudo] password for ai:
+						Reading package lists... Done
+						Building dependency tree
+						Reading state information... Done
+						The following packages will be REMOVED:
+						  nginx nginx-dbg
+						0 upgraded, 0 newly installed, 2 to remove and 48 not upgraded.
+						After this operation, 10.4 MB disk space will be freed.
+						Do you want to continue? [Y/n] y
+						(Reading database ... 189828 files and directories currently installed.)
+						Removing nginx-dbg (1.19.0-1~focal) ...
+						Removing nginx (1.19.0-1~focal) ...
+						Processing triggers for man-db (2.9.1-1) ...			
+		
+		Удалять dpkg -r имя пакета
+		
+		
+				
+==========================================================
+2. Установить пакет на свой выбор, используя snap.
+
+						ai@ubuntu20:~$ sudo snap search zoom
+						Name                      Version                       Publisher          Notes    Summary
+						paintsupreme-3d           1.0.41                        braindistrict      -        PaintSupreme 3D
+						transitionsdj             1.6.0.0                       apollovibes        -        DJ Mixer
+						darktable                 3.0.1snap1                    kyrofa             -        Virtual lighttable and darkroom for photographers
+						photoscape                3.7                           merlijn-sebrechts  -        PhotoScape is a fun and easy photo editing software that enables you to fix and enhance photos.
+						kmplot                    20.04.0                       kde✓               -        Mathematical Function Plotter
+						labplot                   2.6.0                         kde✓               -        interactive graphing and analysis of scientific data
+						zoom-client               5.0.418682.0603               ogra               -        ZOOM Cloud Meetings
+						kwave                     18.04.1                       kde✓               -        Kwave is a sound editor built on KDE Frameworks 5
+						kgraphviewer              2.4.3                         kde✓               -        A Graphviz DOT graph viewer
+						custom-screen-resolution  2.0.0                         anopensourcecoder  -        Create custom resolution base on screen size, PPI and zoom level.
+						heimer                    1.17.0                        jussi-lind         -        Heimer is a simple cross-platform mind map tool.
+						pixelorama                0.7.0                         spacedriver88      -        Pixelorama is a free and open source sprite editor, ideal for pixel art.
+						timeline                  2.2.0                         brunobergot        -        Timeline
+						recollectr                3.13.60                       recollectr         -        Record and recall without breaking your flow
+						foobillard-plus           3.43.0                        stanmichals        -        Billard game simulator
+						celestia-daily            ver1-6-0-1183-g22287736       t4saha             -        Free, open source, Real-time 3D visualization of space.
+						vpv                       0.5.0                         angerj             -        Image viewer for image processing experts
+						submix                    1.0.13                        krasinsite         -        SubMix a Multitrack Audio Editor
+						terminalpp                0.6.0                         zduka              classic  Cross-platform terminal emulator.
+						pynsource                 0+git.217c666-dirty           andybulka          -        Pynsource - reverse engineer Python source code into UML
+						fakecam                   2.0.0                         diddledan          -        Fakecam
+						rview                     1.1.1                         raotech            -        rview
+						clari3d-lite-64           2.0.5                         clari3d            -        Welcome to the main installation package of Clari3D Lite.
+						mp3splt-gtk               0.9.2+2.6.2+patched+pkg-b6bf  brlin              -        Utility to split mp3, ogg vorbis and FLAC files without decoding
+						featherpad                0.10.0+pkg-3be6               brlin              -        Lightweight Qt5 Plain-Text Editor for Linux
+						pick-colour-picker        1.51-e54bc02                  sil                -        A colour picker that remembers where you picked colours from
+
+						ai@ubuntu20:~$ sudo snap install zoom-client
+						zoom-client 5.0.418682.0603 from Oliver Grawert (ogra) installed
+
+==========================================================
+3. Настроить iptables: разрешить подключения только на 22-й и 80-й порты.
+
+
+						ai@ubuntu20:~$ sudo iptables  -P INPUT ACCEPT
+						ai@ubuntu20:~$ sudo iptables -A INPUT -p tcp --dport=22 -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -A INPUT -p tcp --dport=80 -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -A INPUT -i lo -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -A INPUT -p icmp -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -A INPUT -p TCP -m state --state ESTABLISHED,RELATED  -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -P INPUT DROP
+						ai@ubuntu20:~$ sudo iptables -A INPUT -p tcp --dport=443 -j ACCEPT
+						ai@ubuntu20:~$ sudo iptables -L -nv
+						Chain INPUT (policy DROP 11 packets, 3571 bytes)
+						 pkts bytes target     prot opt in     out     source               destination
+						 1543 94168 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+						    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:80
+						   42  3212 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+						    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0
+						    5   416 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+						    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:443
+						
+						Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+						 pkts bytes target     prot opt in     out     source               destination
+						
+						Chain OUTPUT (policy ACCEPT 15 packets, 3252 bytes)
+						 pkts bytes target     prot opt in     out     source               destination
+ ==========================================================
+4. Настроить проброс портов локально с порта 80 на порт 8080.
+
+						для внешних клиентов и только при открытом порте приложения.
+						ai@ubuntu20:~$sudo iptables -t nat  -A PREROUTING -p tcp  --dport=80 -j REDIRECT  --to-port 8080
+						
+						на локальной машине
+						ai@ubuntu20:~$sudo iptables -t nat -A OUTPUT -p tcp -s 127.0.0.1 --dport 80 -j REDIRECT --to-ports 8080
+
+==========================================================
+5. * Настроить проброс портов с локального 8080 на удалённый 80.
+						
+						ai@ubuntu20:~$ sudo iptables -t nat -A OUTPUT -p tcp -m tcp -s 127.0.0.1 --dport 8080 -j DNAT --to-destination 178.248.232.209:80
+						
